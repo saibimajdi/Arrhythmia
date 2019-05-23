@@ -43,39 +43,46 @@ class ShowCamera : SurfaceView, SurfaceHolder.Callback
     fun previewCallBack(data: ByteArray, camera:Camera): Unit
     {
 
-        //if(count % 5 == 0.toLong())
-        //{
+        if(count % 5 == 0.toLong())
+        {
             var bitmap: Bitmap = HelperConverter.toBitmap(data, previewSize!!.width, previewSize!!.height, camera.parameters.previewFormat)
 
             HelperConverter.decodeYUV420SP(pixels!!, data, previewSize!!.width, previewSize!!.height)
 
             process(bitmap, previewSize!!.width, previewSize!!.height)
-        //}
+        }
     }
 
     fun process(bitmap: Bitmap, width: Int, height: Int)
     {
+        // todo: create new bitmap based on the original one.
+        var btmp = Bitmap.createBitmap(width/2, height/2, Bitmap.Config.ARGB_4444)
+
+
         var _bitmap = bitmap.copy(bitmap.config, true)
-        for(i in 0..(width -1))
+
+        var i = 0
+        while(i < (width - 1))
         {
-            for(j in 0..(height -1))
+            var j = 0
+            while(j < (height - 1))
             {
                 var pixel = bitmap.getPixel(i, j)
-                //Log.i("BITMAP", "BITMAP[${i}][${j}]=${}")
+
                 var red = Color.red(pixel)
                 var blue = Color.blue(pixel)
                 var green = Color.green(pixel)
 
 
                 var newPixelValue = (red + blue + green) / 3
+
                 Log.i("COLOR", "newPixelValue=${newPixelValue}")
-                //if(((red + blue + green) / 3) > 125)
-                //    newPixelValue = 255
-                //else
-                //    newPixelValue = 0
 
                 _bitmap.setPixel(i, j, Color.argb(255, newPixelValue, newPixelValue, newPixelValue))
+
+                j++
             }
+            i++
         }
 
         imageView!!.setImageBitmap(_bitmap)
